@@ -1,6 +1,6 @@
-'From Cuis 5.0 [latest update: #4024] on 20 February 2020 at 5:15:47 pm'!
+'From Cuis 5.0 [latest update: #4024] on 23 February 2020 at 9:41:40 pm'!
 'Description Simple two dimensional physics simulation'!
-!provides: 'Arcade-Physics' 1 3!
+!provides: 'Arcade-Physics' 1 4!
 SystemOrganization addCategory: #'Arcade-Physics'!
 
 
@@ -22,6 +22,16 @@ Object subclass: #ParticleSystem
 	category: 'Arcade-Physics'!
 !classDefinition: 'ParticleSystem class' category: #'Arcade-Physics'!
 ParticleSystem class
+	instanceVariableNames: ''!
+
+!classDefinition: #FPSMorph category: #'Arcade-Physics'!
+BorderedRectMorph subclass: #FPSMorph
+	instanceVariableNames: 'frames start fps'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Arcade-Physics'!
+!classDefinition: 'FPSMorph class' category: #'Arcade-Physics'!
+FPSMorph class
 	instanceVariableNames: ''!
 
 !classDefinition: #ParticleSystemMorph category: #'Arcade-Physics'!
@@ -130,6 +140,48 @@ initialize 	particles := OrderedCollection new.! !
 !ParticleSystem methodsFor: 'adding' stamp: 'DavidFaitelson 1/24/2020 21:16'!
 addParticle: aParticle		particles add: aParticle! !
 
+!FPSMorph methodsFor: 'as yet unclassified' stamp: 'DF 2/22/2020 22:45:55'!
+drawOn: aCanvas
+	
+	super drawOn: aCanvas.
+	
+	Time now second > start ifTrue:[fps _ 1.0 * frames / (Time now second - start)].
+	
+	aCanvas drawString: fps asString at: 20@20 font: nil color: Color black.
+	
+	frames _ frames + 1.
+! !
+
+!FPSMorph methodsFor: 'as yet unclassified' stamp: 'DF 2/22/2020 22:49:54'!
+startStepping
+
+	super startStepping.
+	
+	frames _ 0.
+	
+	fps _ 0.0.
+	
+	start _ Time now second.! !
+
+!FPSMorph methodsFor: 'as yet unclassified' stamp: 'DF 2/22/2020 22:45:05'!
+step
+	self redrawNeeded! !
+
+!FPSMorph methodsFor: 'as yet unclassified' stamp: 'DF 2/22/2020 22:51:03'!
+stepTime
+	^25! !
+
+!FPSMorph methodsFor: 'initialization' stamp: 'DF 2/22/2020 22:44:49'!
+initialize
+
+	super initialize.
+	
+	frames _ 0.
+	
+	fps _ 0.0.
+	
+	start _ Time now second.! !
+
 !ParticleSystemMorph methodsFor: 'drawing' stamp: 'DF 2/20/2020 17:08:04'!
 drawOn: aCanvas
 
@@ -156,8 +208,3 @@ stepTime
 
 !ParticleSystemMorph methodsFor: 'as yet unclassified' stamp: 'DavidFaitelson 1/24/2020 21:06'!
 particleSystem: aParticleSystem	particleSystem := aParticleSystem ! !
-
-!Point methodsFor: '*Arcade-Physics' stamp: 'DF 2/20/2020 11:45:20'!
-projectOn: aPoint
-
-	^self dotProduct: aPoint normalized! !
